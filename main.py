@@ -123,6 +123,16 @@ def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
         )
     )
 
+    # Расшифровка текста симметричным алгоритмом и сохранение по указанному пути
+    with open(input_file_path, 'rb') as f:
+        data = f.read()
+    iv = data[:16]
+    data = data[16:]
+    cipher = Cipher(algorithms.SEED(symmetric_key), modes.CBC(iv))
+    decryptor = cipher.decryptor()
+
+    with open(output_file_path, 'wb') as f:
+        f.write(decryptor.update(data) + decryptor.finalize())
 
 
 def menu():
