@@ -5,15 +5,43 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 
 def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_path: str) -> None:
-    pass
+    """
+        1 пункт л.р - Генерация ключей гибридной системы
+        1.1. Сгеренировать ключ для симметричного алгоритма.
+        1.2. Сгенерировать ключи для ассиметричного алгоритма.
+        1.3. Сериализовать ассиметричные ключи.
+        1.4. Зашифровать ключ симметричного шифрования открытым ключом и сохранить по указанному пути.
+        :param symmetric_key_path: путь для ключа симметричного алгоритма
+        :param public_key_path: путь для публичного ключа ассиметричного алгоритма
+        :param private_key_path: путь для закрытого ключа ассиметричного алгоритма
+        :return: None
+    """
 
 
 def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
-    pass
+    """
+        2 пункт л.р - Шифрование данных гибридной системой
+        2.1. Расшифровать симметричный ключ.
+        2.2. Зашифровать текст симметричным алгоритмом и сохранить по указанному пути.
+        :param input_file_path: входной файл
+        :param private_key_path: путь для закрытого ключа ассиметричного алгоритма
+        :param symmetric_key_path: путь для ключа симметричного алгоритма
+        :param output_file_path: выходной файл
+        :return: None
+    """
 
 
 def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
-    pass
+    """
+        3 пункт л.р - Дешифрование данных гибридной системой
+        3.1. Расшифровать симметричный ключ.
+        3.2. Расшифровать текст симметричным алгоритмом и сохранить по указанному пути.
+        :param input_file_path: входной файл
+        :param private_key_path: путь для закрытого ключа ассиметричного алгоритма
+        :param symmetric_key_path: путь для ключа симметричного алгоритма
+        :param output_file_path: выходной файл
+        :return: None
+    """
 
 
 def menu():
