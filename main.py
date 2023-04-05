@@ -82,6 +82,18 @@ def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
         )
     )
 
+    # Шифрование текста симметричным алгоритмом и сохранение по указанному пути
+    with open(input_file_path, 'rb') as f:
+        data = f.read()
+    iv = os.urandom(16)
+    cipher = Cipher(algorithms.AES(symmetric_key), modes.CBC(iv))
+    encryptor = cipher.encryptor()
+
+    with open(output_file_path, 'wb') as f:
+        f.write(iv)
+        f.write(encryptor.update(data) + encryptor.finalize())
+
+
 def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
     """
         3 пункт л.р - Дешифрование данных гибридной системой
