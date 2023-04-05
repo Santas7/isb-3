@@ -41,6 +41,17 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
     with open(private_key_path, 'wb') as f:
         f.write(private_key_bytes)
 
+    # Шифрование ключа симметричного шифрования открытым ключом и сохранение по указанному пути
+    encrypted_symmetric_key = public_key.encrypt(
+        symmetric_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    with open(symmetric_key_path, 'wb') as f:
+        f.write(encrypted_symmetric_key)
 
 def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
     """
