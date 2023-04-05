@@ -16,6 +16,30 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         :param private_key_path: путь для закрытого ключа ассиметричного алгоритма
         :return: None
     """
+    # Генерация ключа для симметричного алгоритма
+    symmetric_key = os.urandom(16)
+
+    # Генерация ключей для ассиметричного алгоритма
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    public_key = private_key.public_key()
+
+    # Сериализация ассиметричных ключей
+    private_key_bytes = private_key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption()
+    )
+    public_key_bytes = public_key.public_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PublicFormat.SubjectPublicKeyInfo
+    )
+    with open(public_key_path, 'wb') as f:
+        f.write(public_key_bytes)
+    with open(private_key_path, 'wb') as f:
+        f.write(private_key_bytes)
 
 
 def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
