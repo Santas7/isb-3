@@ -64,7 +64,23 @@ def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
         :param output_file_path: выходной файл
         :return: None
     """
-
+    # Расшифровка симметричного ключа
+    with open(symmetric_key_path, 'rb') as f:
+        encrypted_symmetric_key = f.read()
+    with open(private_key_path, 'rb') as f:
+        private_key_bytes = f.read()
+    private_key = serialization.load_pem_private_key(
+        private_key_bytes,
+        password=None,
+    )
+    symmetric_key = private_key.decrypt(
+        encrypted_symmetric_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
 
 def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
     """
