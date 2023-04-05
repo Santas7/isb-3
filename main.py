@@ -14,3 +14,10 @@ def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
 
 def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
     pass
+
+
+def menu():
+    pass
+
+if __name__ == '__main__':
+    menu()
