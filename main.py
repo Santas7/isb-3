@@ -138,6 +138,9 @@ def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
 def menu():
     """
         основное меню программы
+        1 - генерация ключей
+        2 - шифрование данных
+        3 - дешифрование данных
     """
     while True:
         print('Encrypt or decrypt data using SEED algorithm')
