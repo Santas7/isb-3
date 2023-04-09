@@ -2,6 +2,10 @@ import os
 from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 
 def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_path: str) -> None:
@@ -36,10 +40,16 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    with open(public_key_path, 'wb') as f:
-        f.write(public_key_bytes)
-    with open(private_key_path, 'wb') as f:
-        f.write(private_key_bytes)
+    try:
+        with open(public_key_path, 'wb') as f:
+            f.write(public_key_bytes)
+    except Exception as e:
+        logging.error(e)
+    try:
+        with open(private_key_path, 'wb') as f:
+            f.write(private_key_bytes)
+    except Exception as e:
+        logging.error(e)
 
     # Шифрование ключа симметричного шифрования открытым ключом и сохранение по указанному пути
     encrypted_symmetric_key = public_key.encrypt(
@@ -50,8 +60,11 @@ def generate_keys(symmetric_key_path: str, public_key_path: str, private_key_pat
             label=None
         )
     )
-    with open(symmetric_key_path, 'wb') as f:
-        f.write(encrypted_symmetric_key)
+    try:
+        with open(symmetric_key_path, 'wb') as f:
+            f.write(encrypted_symmetric_key)
+    except Exception as e:
+        logging.error(e)
 
 
 def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
@@ -66,10 +79,16 @@ def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
         :return: None
     """
     # Расшифровка симметричного ключа
-    with open(symmetric_key_path, 'rb') as f:
-        encrypted_symmetric_key = f.read()
-    with open(private_key_path, 'rb') as f:
-        private_key_bytes = f.read()
+    try:
+        with open(symmetric_key_path, 'rb') as f:
+            encrypted_symmetric_key = f.read()
+    except Exception as e:
+        logging.error(e)
+    try:
+        with open(private_key_path, 'rb') as f:
+            private_key_bytes = f.read()
+    except Exception as e:
+        logging.error(e)
     private_key = serialization.load_pem_private_key(
         private_key_bytes,
         password=None,
@@ -84,15 +103,21 @@ def encrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
     )
 
     # Шифрование текста симметричным алгоритмом и сохранение по указанному пути
-    with open(input_file_path, 'rb') as f:
-        data = f.read()
+    try:
+        with open(input_file_path, 'rb') as f:
+            data = f.read()
+    except Exception as e:
+        logging.error(e)
+
     iv = os.urandom(16)
     cipher = Cipher(algorithms.SEED(symmetric_key), modes.CBC(iv))
     encryptor = cipher.encryptor()
-
-    with open(output_file_path, 'wb') as f:
-        f.write(iv)
-        f.write(encryptor.update(data) + encryptor.finalize())
+    try:
+        with open(output_file_path, 'wb') as f:
+            f.write(iv)
+            f.write(encryptor.update(data) + encryptor.finalize())
+    except Exception as e:
+        logging.error(e)
 
 
 def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path: str, output_file_path: str):
@@ -107,10 +132,16 @@ def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
         :return: None
     """
     # Расшифровка симметричного ключа
-    with open(symmetric_key_path, 'rb') as f:
-        encrypted_symmetric_key = f.read()
-    with open(private_key_path, 'rb') as f:
-        private_key_bytes = f.read()
+    try:
+        with open(symmetric_key_path, 'rb') as f:
+            encrypted_symmetric_key = f.read()
+    except Exception as e:
+        logging.error(e)
+    try:
+        with open(private_key_path, 'rb') as f:
+            private_key_bytes = f.read()
+    except Exception as e:
+        logging.error(e)
     private_key = serialization.load_pem_private_key(
         private_key_bytes,
         password=None,
@@ -125,15 +156,21 @@ def decrypt_data(input_file_path: str, private_key_path: str, symmetric_key_path
     )
 
     # Расшифровка текста симметричным алгоритмом и сохранение по указанному пути
-    with open(input_file_path, 'rb') as f:
-        data = f.read()
+    try:
+        with open(input_file_path, 'rb') as f:
+            data = f.read()
+    except Exception as e:
+        logging.error(e)
     iv = data[:16]
     data = data[16:]
     cipher = Cipher(algorithms.SEED(symmetric_key), modes.CBC(iv))
     decryptor = cipher.decryptor()
 
-    with open(output_file_path, 'wb') as f:
-        f.write(decryptor.update(data) + decryptor.finalize())
+    try:
+        with open(output_file_path, 'wb') as f:
+            f.write(decryptor.update(data) + decryptor.finalize())
+    except Exception as e:
+        logging.error(e)
 
 
 def menu():
