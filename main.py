@@ -1,18 +1,59 @@
 import os
+import sys
+
+from PyQt6.QtCore import QSize
+from PyQt6.uic.properties import QtWidgets
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import serialization, asymmetric, hashes, padding
 import logging
+from PyQt6.QtWidgets import QApplication, QMainWindow, QFileDialog, QPushButton
+from PyQt6 import uic
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
-# класс для работы с криптографией
-class Cryptography:
-    def __init__(self, symmetric_key_path: str = 'symmetric.txt', public_key_path: str = 'public.pem', private_key_path: str = 'private.pem') -> None:
-        self.symmetric_key_path = symmetric_key_path
-        self.public_key_path = public_key_path
-        self.private_key_path = private_key_path
+
+class Window(QMainWindow):
+    def __init__(self) -> None:
+        super().__init__()
+        self.setWindowTitle("Cryptographic system")
+        self.setGeometry(200, 200, 400, 300)
+        self.dialog = QFileDialog()
+        self.dialog.setFileMode(QFileDialog.FileMode.Directory)
+        self.symmetric_key_path = self.dialog.getOpenFileName(None, "Выберите файл (symmetric)", "", "Текстовые файлы (*.txt)")[0]
+        self.public_key_path = self.dialog.getOpenFileName(None, "Выберите файл (public)", "", "Текстовые файлы (*.pem)")[0]
+        self.private_key_path = self.dialog.getOpenFileName(None, "Выберите файл (private)", "", "Текстовые файлы (*.pem)")[0]
+        self.input_file_path = None
+        self.output_file_path = None
+
+        # кнопки
+        self.btn_gen_keys = self.add_button("Генерация ключей", 250, 50, 75, 50)
+        self.btn_encrypt_data = self.add_button("Шифрование данных", 250, 50, 75, 100)
+        self.btn_decrypt_data = self.add_button("Дешифрование данных", 250, 50, 75, 150)
+        self.btn_exit = self.add_button("Выход", 250, 50, 75, 200)
+
+        # события на кнопки
+        self.btn_gen_keys.clicked.connect(self.generate_keys)
+        self.btn_encrypt_data.clicked.connect(self.encrypt_data)
+        self.btn_decrypt_data.clicked.connect(self.decrypt_data)
+        self.btn_exit.clicked.connect(self.exit)
+
+        self.show()
+
+    def add_button(self, name: str, size_x: int, size_y: int, pos_x: int, pos_y: int) -> QPushButton:
+        """
+            добавление кнопки на форму с заданными параметрами и возврат кнопки
+            :name: - название кнопки
+            :size_x: - размер по x
+            :size_y: - размер по y
+            :pos_x: - положение по x
+            :pos_y: - положение по y
+        """
+        button = QPushButton(name, self)
+        button.setFixedSize(QSize(size_x, size_y))
+        button.move(pos_x, pos_y)
+        return button
 
     def generate_keys(self) -> None:
         """
@@ -67,7 +108,7 @@ class Cryptography:
         except Exception as e:
             logging.error(e)
 
-    def encrypt_data(self, input_file_path: str, output_file_path: str) -> None:
+    def encrypt_data(self) -> None:
         """
             2 пункт л.р - Шифрование данных
             2.1. Считать зашифрованный ключ симметричного шифрования из файла.
@@ -79,6 +120,8 @@ class Cryptography:
             :param output_file_path: путь к файлу, в который будут сохранены зашифрованные данные
             :return: None
         """
+        self.input_file_path = self.dialog.getOpenFileName(None, "Выберите файл", "", "Текстовые файлы (*.txt)")[0]
+        self.output_file_path = self.dialog.getOpenFileName(None, "Выберите файл", "", "Текстовые файлы (*.txt)")[0]
         # Считывание зашифрованного ключа симметричного шифрования из файла
         try:
             with open(self.symmetric_key_path, 'rb') as f:
@@ -104,7 +147,7 @@ class Cryptography:
         )
         # Чтение данных из файла
         try:
-            with open(input_file_path, 'rb') as f:
+            with open(self.input_file_path, 'rb') as f:
                 data = f.read()
         except Exception as e:
             logging.error(e)
@@ -118,13 +161,12 @@ class Cryptography:
         encrypted_data = iv + encrypted_data
         # Сохранение зашифрованных данных в файл
         try:
-            with open(output_file_path, 'wb') as f:
+            with open(self.output_file_path, 'wb') as f:
                 f.write(encrypted_data)
         except Exception as e:
             logging.error(e)
 
-
-    def decrypt_data(self, input_file_path: str, output_file_path: str) -> None:
+    def decrypt_data(self) -> None:
         """
             3 пункт л.р - Расшифровка данных
             3.1. Считать зашифрованный ключ симметричного шифрования из файла.
@@ -136,6 +178,8 @@ class Cryptography:
             :param output_file_path: путь к файлу, в который будут сохранены расшифрованные данные
             :return: None
         """
+        self.input_file_path = self.dialog.getOpenFileName(None, "Выберите файл", "", "Текстовые файлы (*.txt)")[0]
+        self.output_file_path = self.dialog.getOpenFileName(None, "Выберите файл", "", "Текстовые файлы (*.txt)")[0]
         # Считывание зашифрованного ключа симметричного шифрования из файла
         try:
             with open(self.symmetric_key_path, 'rb') as f:
@@ -161,7 +205,7 @@ class Cryptography:
         )
         # Чтение зашифрованных данных из файла
         try:
-            with open(input_file_path, 'rb') as f:
+            with open(self.input_file_path, 'rb') as f:
                 encrypted_data = f.read()
         except Exception as e:
             logging.error(e)
@@ -175,44 +219,19 @@ class Cryptography:
         data = unpadder.update(data) + unpadder.finalize()
         # Сохранение расшифрованных данных в файл
         try:
-            with open(output_file_path, 'wb') as f:
+            with open(self.output_file_path, 'wb') as f:
                 f.write(data)
         except Exception as e:
             logging.error(e)
 
-if __name__ == '__main__':
-    """
-            основное меню программы
-            1 - генерация ключей
-            2 - шифрование данных
-            3 - дешифрование данных
+    def exit(self) -> None:
         """
-    symmetric_key_path = input('Введите путь к файлу для сохранения симметричного ключа: ')
-    private_key_path = input('Введите путь к файлу для сохранения закрытого ключа: ')
-    public_key_path = input('Введите путь к файлу для сохранения открытого ключа: ')
-    object = Cryptography(symmetric_key_path, public_key_path, private_key_path)
-    while 1:
-        print('1 - генерация ключей')
-        print('2 - шифрование данных')
-        print('3 - дешифрование данных')
-        print('4 - выход')
-        choice = input('Выберите пункт меню: ')
-        match choice:
-            case '1':
-                object.generate_keys()
-                print('Ключи успешно сгенерированы!')
-            case '2':
-                input_file_path = input('Введите путь к файлу для шифрования: ')
-                output_file_path = input('Введите путь к файлу для сохранения зашифрованных данных: ')
-                object.encrypt_data(input_file_path, output_file_path)
-                print('Данные успешно зашифрованы!')
-            case '3':
-                input_file_path = input('Введите путь к файлу для расшифрования: ')
-                output_file_path = input('Введите путь к файлу для сохранения расшифрованных данных: ')
-                object.decrypt_data(input_file_path, output_file_path)
-                print('Данные успешно расшифрованы!')
-            case '4':
-                print('Выход из программы')
-                break
-            case _:
-                print('Неверный пункт меню')
+            Выход из программы
+        :return:
+        """
+        sys.exit()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    ex = Window()
+    app.exec()
