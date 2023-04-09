@@ -180,37 +180,34 @@ def menu():
         2 - шифрование данных
         3 - дешифрование данных
     """
+    # create main menu with using match/case
     while True:
-        print('Encrypt or decrypt data using SEED algorithm')
-        command = int(input("[1] generate\n[2] encrypt\n[3] decrypt\n--> "))
-
-        if command == 1:
-            os.system("cls")
-            symmetric_key_path = input("symmetric key path--> ")
-            public_key_path = input("public key path--> ")
-            private_key_path = input("private key path--> ")
-            generate_keys(symmetric_key_path, public_key_path, private_key_path)
-            os.system("cls")
-        elif command == 2:
-            os.system("cls")
-            input_file_path = input("input file path--> ")
-            symmetric_key_path = input("symmetric key path--> ")
-            private_key_path = input("private key path--> ")
-            output_file_path = input("output file path--> ")
-            encrypt_data(input_file_path, private_key_path, symmetric_key_path, output_file_path)
-            os.system("cls")
-        elif command == 3:
-            os.system("cls")
-            input_file_path = input("input file path--> ")
-            symmetric_key_path = input("symmetric key path--> ")
-            private_key_path = input("private key path--> ")
-            output_file_path = input("output file path--> ")
-            decrypt_data(input_file_path, private_key_path, symmetric_key_path, output_file_path)
-            os.system("cls")
-        else:
-            os.system("cls")
-            print("Error! I'm not found this command!\n")
-            os.system("cls")
+        print('1 - генерация ключей')
+        print('2 - шифрование данных')
+        print('3 - дешифрование данных')
+        print('4 - выход')
+        choice = input('Выберите пункт меню: ')
+        match choice:
+            case '1':
+                generate_keys()
+            case '2':
+                encrypt_data(
+                    input_file_path=input('Введите путь к файлу для шифрования: '),
+                    private_key_path=input('Введите путь к закрытому ключу: '),
+                    symmetric_key_path=input('Введите путь к симметричному ключу: '),
+                    output_file_path=input('Введите путь к файлу для сохранения зашифрованных данных: ')
+                )
+            case '3':
+                decrypt_data(
+                    input_file_path=input('Введите путь к файлу для расшифрования: '),
+                    private_key_path=input('Введите путь к закрытому ключу: '),
+                    symmetric_key_path=input('Введите путь к симметричному ключу: '),
+                    output_file_path=input('Введите путь к файлу для сохранения расшифрованных данных: ')
+                )
+            case '4':
+                break
+            case _:
+                print('Неверный пункт меню')
 
 if __name__ == '__main__':
     menu()
